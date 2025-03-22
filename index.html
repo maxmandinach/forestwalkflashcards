@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forest Walk Flashcards</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+    <div class="container">
+        <h1>Forest Walk Flashcards</h1>
+        
+        <div class="episode-selector">
+            <h3>Select Your Path</h3>
+            <div id="episode-checkboxes"></div>
+            <button id="startSession">Begin Your Journey</button>
+        </div>
+        
+        <h2 id="current-episode">Conversations with Tyler</h2>
+        
+        <div class="controls">
+            <button id="prevButton">Previous</button>
+            <span id="cardCounter">Card 1 of 5</span>
+            <button id="nextButton">Next</button>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        
+        <div class="session-info">
+            <span>Cards explored: <span id="cards-studied">0</span></span>
+            <span>Journey time: <span id="study-time">00:00</span></span>
+        </div>
+        
+        <div class="flashcard" id="flashcard">
+            <div class="card-inner">
+                <div class="card-front">
+                    <p id="question"></p>
+                    <div class="episode-tag" id="card-episode-front"></div>
+                    <div class="flip-hint">Click to reveal the answer</div>
+                </div>
+                <div class="card-back">
+                    <p id="answer"></p>
+                    <div class="episode-tag" id="card-episode-back"></div>
+                    <div class="flip-hint">Click to return to question</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="feedback">
+            <p>How well did you know this?</p>
+            <div class="rating-buttons">
+                <button class="rating" data-value="1">Challenging</button>
+                <button class="rating" data-value="2">Familiar</button>
+                <button class="rating" data-value="3">Well Known</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="focus-mode" id="focus-toggle">
+        <span>Deep Forest Focus</span>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
