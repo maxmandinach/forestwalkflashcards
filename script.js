@@ -336,14 +336,16 @@ function showCard() {
     const actualCardIndex = randomizedCardIndices[currentCardIndex];
     const currentCard = cards[actualCardIndex];
     
-    // Update the card content using the actual index
-    questionEl.textContent = currentCard.question;
-    answerEl.textContent = currentCard.answer;
-    cardEpisodeFront.textContent = currentCard.episode;
-    cardEpisodeBack.textContent = currentCard.episode;
-    
-    // Update the card counter
-    cardCounter.textContent = `Card ${currentCardIndex + 1} of ${filteredCards.length}`;
+    // Use requestAnimationFrame for smooth updates
+    requestAnimationFrame(() => {
+        questionEl.textContent = currentCard.question;
+        answerEl.textContent = currentCard.answer;
+        cardEpisodeFront.textContent = currentCard.episode;
+        cardEpisodeBack.textContent = currentCard.episode;
+        
+        // Update the card counter
+        cardCounter.textContent = `Card ${currentCardIndex + 1} of ${filteredCards.length}`;
+    });
     
     // Make sure card is showing question side
     flashcard.classList.remove('flipped');
@@ -419,30 +421,12 @@ function initApp() {
     startSessionButton.addEventListener('click', startSession);
     
     // Set up event listeners
-    flashcard.addEventListener('click', (e) => {
-        // Prevent multiple clicks during animation
-        if (flashcard.classList.contains('animating')) return;
-        
-        // Add animating class
-        flashcard.classList.add('animating');
-        
-        // Toggle the flip class
-        flashcard.classList.toggle('flipped');
-        
-        // Mark card as studied when flipped
-        if (flashcard.classList.contains('flipped')) {
-            // Use setTimeout to ensure the UI remains responsive
-            setTimeout(() => {
-                studiedCards.add(currentCardIndex);
-                updateProgress();
-            }, 10);
-        }
-        
-        // Remove animating class after animation completes
-        setTimeout(() => {
-            flashcard.classList.remove('animating');
-        }, 600); // Same duration as the CSS transition
+    flashcard.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent default touch behavior
+        handleFlashcardClick(); // Call the existing click handler
     });
+
+    flashcard.addEventListener('click', handleFlashcardClick);
 
     prevButton.addEventListener('click', () => {
         // Go to the previous card in the randomized order
@@ -507,6 +491,18 @@ function initApp() {
         container.classList.add('inactive-session');
     });
     document.querySelector('.controls').appendChild(resetButton);
+
+    // Initialize touch handling
+    initTouchHandling();
+    
+    // Add viewport height fix for mobile browsers
+    function updateVhProperty() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    updateVhProperty();
+    window.addEventListener('resize', updateVhProperty);
 }
 
 // Start the app
@@ -772,4 +768,62 @@ function startSession() {
     randomizeCards();
     showCard();
     updateProgress();
+}
+
+function handleFlashcardClick() {
+    // Prevent multiple clicks during animation
+    if (flashcard.classList.contains('animating')) return;
+
+    // Add animating class
+    flashcard.classList.add('animating');
+
+    // Toggle the flip class
+    flashcard.classList.toggle('flipped');
+
+    // Mark card as studied when flipped
+    if (flashcard.classList.contains('flipped')) {
+        // Use setTimeout to ensure the UI remains responsive
+        setTimeout(() => {
+            studiedCards.add(currentCardIndex);
+            updateProgress();
+        }, 10);
+    }
+
+    // Remove animating class after animation completes
+    setTimeout(() => {
+        flashcard.classList.remove('animating');
+    }, 600); // Same duration as the CSS transition
+}
+
+// Add touch event handling improvements
+function initTouchHandling() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    flashcard.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    flashcard.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchEndX - touchStartX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                // Swipe right - previous card
+                prevButton.click();
+            } else {
+                // Swipe left - next card
+                nextButton.click();
+            }
+        } else {
+            // Small movement - treat as tap
+            handleFlashcardClick();
+        }
+    }
 }
